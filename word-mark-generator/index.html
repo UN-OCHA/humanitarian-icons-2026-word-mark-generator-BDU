@@ -770,6 +770,13 @@
           </div>
           <button class="btn-check" id="checkStatus">Check Status</button>
         </div>
+        <div id="deepLinkLoader" style="display:none; text-align:center; padding:1.5rem 0;">
+          <div style="display:inline-block; width:80%; max-width:320px; background:#e9ecef; border-radius:6px; height:6px; overflow:hidden;">
+            <div style="width:0%; height:100%; background:var(--cd-ocha-blue); border-radius:6px; animation: loadBar 2.5s ease-in-out forwards;"></div>
+          </div>
+          <p style="font-size:0.85rem; color:var(--cd-grey--mid); margin-top:0.5rem;">Verifying your request…</p>
+          <style>@keyframes loadBar { 0%{width:0%} 60%{width:75%} 90%{width:92%} 100%{width:100%} }</style>
+        </div>
         <div id="downloadMessage"></div>
         <div class="buttons" id="approvedButtons" style="display: none;">
           <button class="btn-svg" id="downloadPackage">Download Wordmark (SVG + PNG)</button>
@@ -1900,10 +1907,12 @@
         document.getElementById('downloadEmail').value = em;
         document.getElementById('downloadCode').value = rid.toUpperCase();
 
-        // Scroll to download section first, then auto-check status
+        // Scroll to download section, show progress bar, then auto-check status
         setTimeout(async () => {
           document.getElementById('downloadSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          document.getElementById('deepLinkLoader').style.display = 'block';
           await checkApprovalStatus();
+          document.getElementById('deepLinkLoader').style.display = 'none';
         }, 500);
       })();
     </script>
