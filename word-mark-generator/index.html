@@ -1903,8 +1903,14 @@
         // Wait a tick for icons to start loading, then auto-check
         setTimeout(async () => {
           await checkApprovalStatus();
-          // Scroll the download section into view
-          document.getElementById('downloadSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Scroll to the download buttons (not just the section header)
+          // so the user sees the action immediately
+          setTimeout(() => {
+            const target = document.getElementById('approvedButtons').style.display !== 'none'
+              ? document.getElementById('approvedButtons')
+              : document.getElementById('downloadSection');
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 300);
         }, 500);
       })();
     </script>
