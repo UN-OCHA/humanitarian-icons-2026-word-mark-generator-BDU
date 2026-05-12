@@ -750,6 +750,12 @@
           </div>
           <button class="btn-request" id="submitRequest" disabled>Request Approval</button>
         </div>
+        <div id="submitLoader" style="display:none; text-align:center; padding:1.5rem 0;">
+          <div style="display:inline-block; width:80%; max-width:320px; background:#e9ecef; border-radius:6px; height:6px; overflow:hidden;">
+            <div style="width:0%; height:100%; background:var(--cd-ocha-blue); border-radius:6px; animation: loadBar 3s ease-in-out forwards;"></div>
+          </div>
+          <p style="font-size:0.85rem; color:var(--cd-grey--mid); margin-top:0.5rem;">Submitting your request…</p>
+        </div>
         <div id="requestMessage"></div>
       </div>
 
@@ -1600,6 +1606,8 @@
         const btn = document.getElementById("submitRequest");
         btn.disabled = true;
         btn.textContent = "SUBMITTING...";
+        document.getElementById("submitLoader").style.display = "block";
+        document.getElementById("requestMessage").innerHTML = "";
 
         try {
           // Generate watermarked preview PNG as base64
@@ -1654,6 +1662,7 @@
           console.error("Submit error:", err);
         }
 
+        document.getElementById("submitLoader").style.display = "none";
         btn.disabled = false;
         btn.textContent = "REQUEST APPROVAL";
       }
