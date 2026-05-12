@@ -1900,17 +1900,10 @@
         document.getElementById('downloadEmail').value = em;
         document.getElementById('downloadCode').value = rid.toUpperCase();
 
-        // Wait a tick for icons to start loading, then auto-check
+        // Scroll to download section first, then auto-check status
         setTimeout(async () => {
+          document.getElementById('downloadSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
           await checkApprovalStatus();
-          // Scroll to the download buttons (not just the section header)
-          // so the user sees the action immediately
-          setTimeout(() => {
-            const target = document.getElementById('approvedButtons').style.display !== 'none'
-              ? document.getElementById('approvedButtons')
-              : document.getElementById('downloadSection');
-            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 300);
         }, 500);
       })();
     </script>
