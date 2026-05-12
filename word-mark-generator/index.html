@@ -857,14 +857,15 @@
         );
       }
 
-      function isLocalDev() {
+      function isLocalOrPages() {
+        // Local dev OR GitHub Pages — both serve SVGs from the same origin
         const h = location.hostname;
-        return h === 'localhost' || h === '127.0.0.1' || location.protocol === 'file:';
+        return h === 'localhost' || h === '127.0.0.1' || location.protocol === 'file:' || h.endsWith('.github.io');
       }
 
       function repoPathToCdnUrl(path) {
-        if (isLocalDev()) {
-          // On local dev, load SVGs from relative path (word-mark-generator/ -> svg/)
+        if (isLocalOrPages()) {
+          // Relative path works on local dev and GitHub Pages (SVGs sit next to this page)
           const filename = path.split("/").pop();
           return "../svg/" + filename;
         }
@@ -955,7 +956,7 @@
                   .filter(([key, meta]) => meta.wordmark)
                   .map(([key, meta]) => {
                     const svgFile = key + ".svg";
-                    const url = isLocalDev()
+                    const url = isLocalOrPages()
                       ? "../svg/" + svgFile
                       : `https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026-BDU@main/svg/${encodeURIComponent(svgFile)}`;
                     return {
