@@ -295,7 +295,7 @@ function onStatusChange(e) {
         'OCHA Brand and Design Unit'
       ].filter(Boolean).join('\n');
 
-      MailApp.sendEmail(email, subject, body);
+      MailApp.sendEmail(email, subject, body, { cc: NOTIFY_EMAIL, name: 'OCHA Visual' });
     } else if (newStatus === 'Rejected') {
       var subject = 'Wordmark request ' + requestId + ' — changes needed';
       var body = [
@@ -312,7 +312,7 @@ function onStatusChange(e) {
         'OCHA Brand and Design Unit'
       ].filter(Boolean).join('\n');
 
-      MailApp.sendEmail(email, subject, body);
+      MailApp.sendEmail(email, subject, body, { cc: NOTIFY_EMAIL, name: 'OCHA Visual' });
     }
 
     Logger.log('Notification sent to ' + email + ' for ' + requestId + ' (' + newStatus + ')');
