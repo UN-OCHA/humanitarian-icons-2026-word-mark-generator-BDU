@@ -25,8 +25,12 @@ const SHEET_NAME = 'Requests';
 // Email address that receives notification when a new request comes in
 const NOTIFY_EMAIL = 'ochavisual@un.org';
 
+// Standalone script — open the sheet by ID (not getActiveSpreadsheet)
+// so this works when deployed from any Google account.
+const SHEET_ID = '1eEb70cPxF8dYkomCcBR6TZXy0Q7jTnDM-LxWPbAspxE';
+
 function getSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SpreadsheetApp.openById(SHEET_ID);
   let sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) {
     sheet = ss.getSheets()[0];
