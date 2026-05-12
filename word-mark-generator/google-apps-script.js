@@ -213,3 +213,110 @@ function markDownloaded(params) {
 
   return { success: false, error: 'Request not found.' };
 }
+
+// ============================================================
+// AUTO-EMAIL on approval — installable onEdit trigger
+// ============================================================
+// When the Status column (I) changes to "Approved" or "Rejected",
+// this sends an email to the requester automatically.
+//
+// SETUP (run once): call createEditTrigger() from the editor
+// (Run > select createEditTrigger > Run). This installs the
+// trigger so it fires on every sheet edit.
+// ============================================================
+
+function createEditTrigger() {
+  // Remove any existing triggers to avoid duplicates
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === 'onStatusChange') {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+  // Create installable onEdit trigger for the approval sheet
+  ScriptApp.newTrigger('onStatusChange')
+    .forSpreadsheet(SHEET_ID)
+    .onEdit()
+    .create();
+  Logger.log('Edit trigger installed for sheet ' + SHEET_ID);
+}
+
+function onStatusChange(e) {
+  try {
+    var range = e.range;
+    var sheet = range.getSheet();
+
+    // Only act on the Status column (column I = 9)
+    if (range.getColumn() !== 9) return;
+
+    // Only act on data rows (skip header)
+    var row = range.getRow();
+    if (row < 2) return;
+
+    var newStatus = (range.getValue() || '').toString().trim();
+
+    // Only send email for Approved or Rejected
+    if (newStatus !== 'Approved' && newStatus !== 'Rejected') return;
+
+    // Get the row data
+    var rowData = sheet.getRange(row, 1, 1, 10).getValues()[0];
+    var email = (rowData[1] || '').toString().trim();    // Column B: Email
+    var icon = (rowData[2] || '').toString().trim();      // Column C: Icon
+    var line1 = (rowData[3] || '').toString().trim();     // Column D: Line 1
+    var line2 = (rowData[4] || '').toString().trim();     // Column E: Line 2
+    var line3 = (rowData[5] || '').toString().trim();     // Column F: Line 3
+    var requestId = (rowData[7] || '').toString().trim(); // Column H: Request ID
+
+    if (!email) return;
+
+    var generatorUrl = 'https://un-ocha.github.io/humanitarian-icons-2026-BDU/word-mark-generator/';
+
+    if (newStatus === 'Approved') {
+      // Direct deep link — pre-fills request ID + email and auto-checks status
+      var downloadLink = generatorUrl + '?requestId=' + encodeURIComponent(requestId) + '&email=' + encodeURIComponent(email);
+
+      var subject = 'Wordmark request ' + requestId + ' approved';
+      var body = [
+        'Your wordmark request has been approved by the OCHA Brand and Design Unit.',
+        '',
+        'Request ID: ' + requestId,
+        'Icon: ' + icon,
+        'Line 1: ' + line1,
+        line2 ? 'Line 2: ' + line2 : '',
+        line3 ? 'Line 3: ' + line3 : '',
+        '',
+        'Download your wordmark here:',
+        downloadLink,
+        '',
+        '(The link opens the generator with your request pre-loaded. Click "Download Wordmark" to get the SVG + PNG package.)',
+        '',
+        'If you have any questions, contact ochavisual@un.org.',
+        '',
+        'OCHA Brand and Design Unit'
+      ].filter(Boolean).join('\n');
+
+      MailApp.sendEmail(email, subject, body);
+    } else if (newStatus === 'Rejected') {
+      var subject = 'Wordmark request ' + requestId + ' — changes needed';
+      var body = [
+        'Your wordmark request needs changes before it can be approved.',
+        '',
+        'Request ID: ' + requestId,
+        'Icon: ' + icon,
+        'Line 1: ' + line1,
+        line2 ? 'Line 2: ' + line2 : '',
+        line3 ? 'Line 3: ' + line3 : '',
+        '',
+        'Please contact ochavisual@un.org for details on what needs to be adjusted.',
+        '',
+        'OCHA Brand and Design Unit'
+      ].filter(Boolean).join('\n');
+
+      MailApp.sendEmail(email, subject, body);
+    }
+
+    Logger.log('Notification sent to ' + email + ' for ' + requestId + ' (' + newStatus + ')');
+  } catch (err) {
+    Logger.log('onStatusChange error: ' + err.message);
+  }
+}
