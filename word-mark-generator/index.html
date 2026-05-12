@@ -1886,6 +1886,27 @@
 
       // Initialize
       loadIcons();
+
+      // Deep-link support: ?requestId=WM-XXXXX&email=user@example.com
+      // Pre-fills the download section and auto-checks the status so the
+      // approval email can include a one-click link.
+      (function handleDeepLink() {
+        const params = new URLSearchParams(window.location.search);
+        const rid = params.get('requestId') || params.get('rid');
+        const em = params.get('email');
+        if (!rid || !em) return;
+
+        // Pre-fill the download fields
+        document.getElementById('downloadEmail').value = em;
+        document.getElementById('downloadCode').value = rid.toUpperCase();
+
+        // Wait a tick for icons to start loading, then auto-check
+        setTimeout(async () => {
+          await checkApprovalStatus();
+          // Scroll the download section into view
+          document.getElementById('downloadSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 500);
+      })();
     </script>
 
     <footer class="cd-footer">
