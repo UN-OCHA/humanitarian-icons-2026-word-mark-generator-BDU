@@ -787,6 +787,7 @@
     <script>
       let icons = [];
       let selectedIcon = null;
+      let isDeepLink = false; // suppress icon-grid scroll during deep-link restore
       let lineCount = 1;
       const UN_BLUE = "#009edb";
 
@@ -1733,7 +1734,7 @@
             if (el.querySelector(".icon-name") &&
                 normalizeIconName(el.querySelector(".icon-name").textContent) === normalizeIconName(iconName)) {
               el.classList.add("selected");
-              el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+              if (!isDeepLink) el.scrollIntoView({ behavior: "smooth", block: "nearest" });
             }
           });
         }
@@ -1908,11 +1909,13 @@
         document.getElementById('downloadCode').value = rid.toUpperCase();
 
         // Scroll to download section, show progress bar, then auto-check status
+        isDeepLink = true;
         setTimeout(async () => {
           document.getElementById('downloadSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
           document.getElementById('deepLinkLoader').style.display = 'block';
           await checkApprovalStatus();
           document.getElementById('deepLinkLoader').style.display = 'none';
+          isDeepLink = false;
         }, 500);
       })();
     </script>
