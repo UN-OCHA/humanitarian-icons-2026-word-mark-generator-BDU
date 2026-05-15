@@ -8,26 +8,10 @@ The official set of humanitarian icons used across OCHA products, publications, 
 |---|---|
 | `svg/` | 388 SVG icons (optimized, single-color, OCHA blue `#009edb`) |
 | `metadata.json` | Icon metadata: names, families, keywords, wordmark approval flags |
-| `word-mark-generator/` | Web-based wordmark generator with approval workflow ([live tool](https://un-ocha.github.io/humanitarian-icons-2026-BDU/word-mark-generator/)) |
 | `curator/` | Icon curator tool for browsing and managing the collection |
 | `scripts/` | Python utilities for generating exports (Excel, PowerPoint, font, grid, wordmarks) |
 | `output/` | Pre-built exports: CSV, PPTX, XLSX, SVG grid, icon font |
 | `assets/` | OCHA logo and favicon |
-
-## Wordmark Generator
-
-A browser-based tool for creating branded wordmarks using Humanitarian Icons. Includes an approval workflow managed via Google Sheets.
-
-**Live tool:** https://un-ocha.github.io/humanitarian-icons-2026-BDU/word-mark-generator/
-
-98 icons are approved for use in wordmarks. The full workflow:
-
-1. User selects an icon and enters text
-2. User submits a request for approval
-3. BDU reviews and approves/rejects via the Google Sheet
-4. User receives an automated email with a direct download link
-
-See [`word-mark-generator/APPROVAL_SETUP.md`](word-mark-generator/APPROVAL_SETUP.md) for setup and operations documentation.
 
 ## Using the Icons
 
@@ -80,9 +64,36 @@ Requires Python 3.9+ with dependencies in `.venv/`.
 
 The OCHA Humanitarian Icons are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
+---
+
+## Additional Tool: Wordmark Generator
+
+A separate browser-based tool hosted from this repo that allows OCHA staff to create branded wordmarks using Humanitarian Icons. It includes a full approval workflow so that all wordmarks are reviewed by BDU before final download.
+
+**Live tool:** https://un-ocha.github.io/humanitarian-icons-2026-BDU/word-mark-generator/
+
+98 of the 388 icons are approved for use in wordmarks. The tool lives in `word-mark-generator/` and consists of:
+
+| File | Purpose |
+|---|---|
+| `index.html` | The generator (single-page app, no build step) |
+| `google-apps-script.js` | Backend code deployed as a Google Apps Script web app |
+| `APPROVAL_SETUP.md` | Full setup and operations documentation |
+
+### How the approval workflow works
+
+1. User selects an icon, enters text, and submits a request
+2. BDU receives an email notification with a preview image
+3. BDU opens the Google Sheet and changes the status to "Approved" or "Rejected"
+4. User automatically receives an email with a direct download link
+
+See [`word-mark-generator/APPROVAL_SETUP.md`](word-mark-generator/APPROVAL_SETUP.md) for detailed setup, day-to-day operations, and troubleshooting.
+
+---
+
 ## Project Owner
 
-Javier Cueto, Lead of Brand and Design Unit
+Javier Cueto, Head of Brand and Design Unit
 
 ## Maintained by
 
