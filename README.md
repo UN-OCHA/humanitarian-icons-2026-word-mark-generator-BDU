@@ -1,36 +1,50 @@
 # OCHA Humanitarian Icons 2026
 
-The official set of humanitarian icons used across OCHA products, publications, and digital platforms. Maintained by the **OCHA Brand and Design Unit (BDU)**.
+The official set of **388 humanitarian icons** used across OCHA products, publications, and digital platforms. All icons are single-color SVGs in OCHA blue (`#009edb`), designed to work at any size from 16px to print resolution.
 
-## What's in this repo
-
-| Path | Description |
-|---|---|
-| `svg/` | 388 SVG icons (optimized, single-color, OCHA blue `#009edb`) |
-| `metadata.json` | Icon metadata: names, families, keywords, wordmark approval flags |
-| `curator/` | Icon curator tool for browsing and managing the collection |
-| `scripts/` | Python utilities for generating exports (Excel, PowerPoint, font, grid, wordmarks) |
-| `output/` | Pre-built exports: CSV, PPTX, XLSX, SVG grid, icon font |
-| `assets/` | OCHA logo and favicon |
+Maintained by the **OCHA Brand and Design Unit (BDU)**.
 
 ## Using the Icons
 
-### CDN (jsDelivr)
+### Direct download
 
+Browse the [`svg/`](svg/) folder and download individual SVG files.
+
+### CDN (recommended for web)
+
+Load any icon directly via jsDelivr — no download needed:
+
+```html
+<img src="https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026-BDU@main/svg/Shelter.svg" alt="Shelter" />
 ```
-https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026-BDU@main/svg/{icon-name}.svg
+
+Pattern:
+```
+https://cdn.jsdelivr.net/gh/UN-OCHA/humanitarian-icons-2026-BDU@main/svg/{Icon-name}.svg
 ```
 
 ### GitHub Pages
 
-All icons are also available via GitHub Pages:
+All icons are also served from GitHub Pages:
 ```
-https://un-ocha.github.io/humanitarian-icons-2026-BDU/svg/{icon-name}.svg
+https://un-ocha.github.io/humanitarian-icons-2026-BDU/svg/{Icon-name}.svg
 ```
+
+### Pre-built exports
+
+Ready-to-use packages in the [`output/`](output/) folder:
+
+| File | Format | Use case |
+|---|---|---|
+| `Humanitarian_icons.xlsx` | Excel | Reference sheets, internal catalogues |
+| `Humanitarian_icons.pptx` | PowerPoint | Presentations, slide decks |
+| `Humanitarian_icons.csv` | CSV | Data integrations, lookups |
+| `Humanitarian_icons_complete_library.svg` | SVG grid | Visual overview of the full set |
+| `font/` | Icon font | Web and app interfaces |
 
 ### Metadata
 
-`metadata.json` contains structured data for each icon:
+[`metadata.json`](metadata.json) contains structured data for every icon — name, family, keywords, and wordmark eligibility:
 
 ```json
 {
@@ -46,48 +60,55 @@ https://un-ocha.github.io/humanitarian-icons-2026-BDU/svg/{icon-name}.svg
 }
 ```
 
-## Scripts
+### Colour
 
-Requires Python 3.9+ with dependencies in `.venv/`.
-
-| Script | What it does |
-|---|---|
-| `populate_metadata.py` | Scans `svg/` and builds `metadata.json` |
-| `generate-excel.py` | Generates the Excel export |
-| `generate-pptx.py` | Generates the PowerPoint export |
-| `generate-font.py` | Generates the icon font |
-| `generate-grid.py` | Generates the complete SVG grid |
-| `generate-wordmark.py` | Batch generates wordmarks from metadata |
-| `fix_metadata.py` | Utility for metadata corrections |
+All SVGs use OCHA blue `#009edb`. To change colour, apply a CSS filter or edit the `fill` attribute. The icons are designed to work in monochrome — do not add gradients or multiple colours.
 
 ## License
 
-The OCHA Humanitarian Icons are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+The OCHA Humanitarian Icons are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). You are free to share and adapt them with appropriate credit to OCHA.
 
 ---
 
-## Additional Tool: Wordmark Generator
+## Internal Tools
 
-A separate browser-based tool hosted from this repo that allows OCHA staff to create branded wordmarks using Humanitarian Icons. It includes a full approval workflow so that all wordmarks are reviewed by BDU before final download.
+These tools are used by BDU to manage, generate, and distribute the icon collection. They are not intended for end users.
+
+### Wordmark Generator
+
+A browser-based tool that allows OCHA staff to create branded wordmarks using Humanitarian Icons. All wordmarks require BDU approval before final download.
 
 **Live tool:** https://un-ocha.github.io/humanitarian-icons-2026-BDU/word-mark-generator/
 
-98 of the 388 icons are approved for use in wordmarks. The tool lives in `word-mark-generator/` and consists of:
+98 of the 388 icons are approved for use in wordmarks. The approval workflow is automated: BDU changes a status in a Google Sheet, and the requester receives an email with a direct download link.
 
 | File | Purpose |
 |---|---|
-| `index.html` | The generator (single-page app, no build step) |
-| `google-apps-script.js` | Backend code deployed as a Google Apps Script web app |
-| `APPROVAL_SETUP.md` | Full setup and operations documentation |
+| `word-mark-generator/index.html` | The generator (single-page app, no build step) |
+| `word-mark-generator/google-apps-script.js` | Backend code deployed as a Google Apps Script web app |
+| `word-mark-generator/APPROVAL_SETUP.md` | Setup and operations documentation |
 
-### How the approval workflow works
+### Icon Curator
 
-1. User selects an icon, enters text, and submits a request
-2. BDU receives an email notification with a preview image
-3. BDU opens the Google Sheet and changes the status to "Approved" or "Rejected"
-4. User automatically receives an email with a direct download link
+A browser-based tool for browsing, reviewing, and managing icon metadata.
 
-See [`word-mark-generator/APPROVAL_SETUP.md`](word-mark-generator/APPROVAL_SETUP.md) for detailed setup, day-to-day operations, and troubleshooting.
+| File | Purpose |
+|---|---|
+| `curator/index.html` | The curator interface |
+
+### Build Scripts
+
+Python utilities for generating the distributable exports. Requires Python 3.9+ with dependencies in `.venv/`.
+
+| Script | What it does |
+|---|---|
+| `scripts/populate_metadata.py` | Scans `svg/` and builds `metadata.json` |
+| `scripts/generate-excel.py` | Generates the Excel export |
+| `scripts/generate-pptx.py` | Generates the PowerPoint export |
+| `scripts/generate-font.py` | Generates the icon font |
+| `scripts/generate-grid.py` | Generates the complete SVG grid |
+| `scripts/generate-wordmark.py` | Batch generates wordmarks from metadata |
+| `scripts/fix_metadata.py` | Utility for metadata corrections |
 
 ---
 
