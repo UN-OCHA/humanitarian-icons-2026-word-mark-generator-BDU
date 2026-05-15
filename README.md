@@ -62,8 +62,7 @@ Ready-to-use packages in the [`output/`](output/) folder:
 
 ### Colour
 
-All SVGs use OCHA blue `#009edb`. To change colour, apply a CSS filter or edit the `fill` attribute. The icons are designed to work in monochrome — do not add gradients or multiple colours.
-
+All SVGs use OCHA blue `#009edb`. To change colour, apply a CSS filter or edit the `fill` attribute.
 ## Icon Library
 
 **389 icons** across 19 categories.
