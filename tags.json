@@ -1,20 +1,4 @@
 {
-  "AI-chat": {
-    "name": "AI chat",
-    "family": "UX UI",
-    "tags": [
-      "ux ui",
-      "ai chat"
-    ]
-  },
-  "API": {
-    "name": "API",
-    "family": "Product type",
-    "tags": [
-      "product type",
-      "api"
-    ]
-  },
   "Abduction-kidnapping": {
     "name": "Abduction kidnapping",
     "family": "Security and incident",
@@ -93,12 +77,21 @@
       "harvest"
     ]
   },
+  "AI-chat": {
+    "name": "AI chat",
+    "family": "UX UI",
+    "tags": [
+      "ux ui",
+      "ai chat"
+    ]
+  },
   "Airport": {
     "name": "Airport",
     "family": "Logistics",
     "tags": [
       "logistics",
-      "airport"
+      "airport",
+      "plane"
     ]
   },
   "Airport-affected": {
@@ -116,7 +109,8 @@
     "family": "Lockdown",
     "tags": [
       "lockdown",
-      "airport closed"
+      "airport closed",
+      "plane"
     ]
   },
   "Airport-destroyed": {
@@ -134,7 +128,8 @@
     "family": "Logistics",
     "tags": [
       "logistics",
-      "airport military"
+      "airport military",
+      "plane"
     ]
   },
   "Airport-not-affected": {
@@ -152,7 +147,8 @@
     "family": "UX UI",
     "tags": [
       "ux ui",
-      "alert"
+      "alert",
+      "problem"
     ]
   },
   "Analysis": {
@@ -175,12 +171,22 @@
       "proactive"
     ]
   },
+  "API": {
+    "name": "API",
+    "family": "Product type",
+    "tags": [
+      "product type",
+      "api",
+      "computer"
+    ]
+  },
   "Apps": {
     "name": "Apps",
     "family": "UX UI",
     "tags": [
       "ux ui",
-      "apps"
+      "apps",
+      "dots"
     ]
   },
   "Arrest-detention": {
@@ -286,7 +292,8 @@
       "checkpoint",
       "gate",
       "frontier",
-      "passage"
+      "passage",
+      "arrows"
     ]
   },
   "Borehole": {
@@ -421,22 +428,6 @@
       "bus"
     ]
   },
-  "COVID-19": {
-    "name": "COVID-19",
-    "family": "Health",
-    "tags": [
-      "health",
-      "covid-19"
-    ]
-  },
-  "CSV-file": {
-    "name": "CSV file",
-    "family": "UX UI",
-    "tags": [
-      "ux ui",
-      "csv file"
-    ]
-  },
   "Calendar": {
     "name": "Calendar",
     "family": "Product type",
@@ -534,7 +525,9 @@
       "barrier",
       "control",
       "security check",
-      "gate"
+      "gate",
+      "police",
+      "customs"
     ]
   },
   "Child-care-child-friendly": {
@@ -717,6 +710,22 @@
       "territory"
     ]
   },
+  "COVID-19": {
+    "name": "COVID-19",
+    "family": "Health",
+    "tags": [
+      "health",
+      "covid-19"
+    ]
+  },
+  "CSV-file": {
+    "name": "CSV file",
+    "family": "UX UI",
+    "tags": [
+      "ux ui",
+      "csv file"
+    ]
+  },
   "Cyclone": {
     "name": "Cyclone",
     "family": "Disasters, hazards and crises",
@@ -725,14 +734,6 @@
       "typhoon",
       "storm",
       "wind spiral"
-    ]
-  },
-  "DOCX-file": {
-    "name": "DOCX file",
-    "family": "UX UI",
-    "tags": [
-      "ux ui",
-      "docx file"
     ]
   },
   "Damaged-affected": {
@@ -853,6 +854,14 @@
       "paper",
       "page",
       "report"
+    ]
+  },
+  "DOCX-file": {
+    "name": "DOCX file",
+    "family": "UX UI",
+    "tags": [
+      "ux ui",
+      "docx file"
     ]
   },
   "Down": {
@@ -1060,7 +1069,8 @@
     "family": "Logistics",
     "tags": [
       "logistics",
-      "ferry"
+      "ferry",
+      "boat"
     ]
   },
   "Film": {
@@ -1993,16 +2003,6 @@
       "murder"
     ]
   },
-  "NGO-office": {
-    "name": "NGO office",
-    "family": "General infrastructure",
-    "tags": [
-      "organisation",
-      "non-profit",
-      "agency",
-      "office"
-    ]
-  },
   "National-army": {
     "name": "National army",
     "family": "People",
@@ -2027,6 +2027,16 @@
     "tags": [
       "ux ui",
       "next item"
+    ]
+  },
+  "NGO-office": {
+    "name": "NGO office",
+    "family": "General infrastructure",
+    "tags": [
+      "organisation",
+      "non-profit",
+      "agency",
+      "office"
     ]
   },
   "Non-food-items": {
@@ -2137,14 +2147,6 @@
       "p-code"
     ]
   },
-  "PDF-file": {
-    "name": "PDF file",
-    "family": "UX UI",
-    "tags": [
-      "ux ui",
-      "pdf file"
-    ]
-  },
   "Partnership": {
     "name": "Partnership",
     "family": "Activities strategy",
@@ -2169,6 +2171,14 @@
     "tags": [
       "ux ui",
       "pause"
+    ]
+  },
+  "PDF-file": {
+    "name": "PDF file",
+    "family": "UX UI",
+    "tags": [
+      "ux ui",
+      "pdf file"
     ]
   },
   "Peacekeeping-force": {
