@@ -34,6 +34,24 @@ OUTPUT_PATH = REPO / "metadata.json"
 
 TODAY = "2026-02-13"
 
+# ──────────────────────────────────────────────────────────────────────
+# CI guard: this script depends on the Excel file + curator JSON that
+# live in OCHA's Dropbox (outside the repo), so it cannot run on a CI
+# runner. On CI we skip cleanly so the rest of the pipeline (fix_metadata,
+# generate-*, sync_to_frontify) can still run.
+#
+# Locally — when adding a new icon — run this script before committing
+# so metadata.json picks up the new entry. The CI workflow will then
+# regenerate Excel/PPTX/font/grid outputs and sync to Frontify.
+# ──────────────────────────────────────────────────────────────────────
+if not EXCEL_PATH.is_file() or not CURATOR_PATH.is_file():
+    print(f"populate_metadata.py: external sources not found")
+    print(f"  Expected Excel:    {EXCEL_PATH}")
+    print(f"  Expected curator:  {CURATOR_PATH}")
+    print(f"  Skipping — these files live outside the repo (OCHA Dropbox).")
+    print(f"  Run this script locally to regenerate metadata.json from Excel.")
+    sys.exit(0)
+
 # Family order (from the Excel, preserved exactly)
 FAMILY_ORDER = [
     "Clusters",

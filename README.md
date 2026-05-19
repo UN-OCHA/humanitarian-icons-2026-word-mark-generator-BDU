@@ -673,10 +673,21 @@ The full pipeline runs automatically on push via [`.github/workflows/sync-and-bu
 
 The GitHub Action then:
 
-- Rebuilds `metadata.json` (`populate_metadata.py` + `fix_metadata.py`)
+- Normalises `metadata.json` via `fix_metadata.py` (key renames, font codepoints, display-name casing)
 - Regenerates the Excel, PowerPoint, font, and grid outputs
 - Uploads the new SVG to the OCHA Frontify icon library and applies its tags
 - Commits the refreshed `metadata.json` and `output/` files back to `main`
+
+> **Heads-up for the BDU maintainer:** `populate_metadata.py` rebuilds `metadata.json` from the **master Excel file** that lives in OCHA's internal Dropbox (not in the repo). It is skipped automatically on CI. If a new icon needs a proper Excel-sourced family/font code, run it locally **before pushing**:
+>
+> ```bash
+> python scripts/populate_metadata.py   # locally — reads Excel from your Dropbox
+> git add svg/ tags.json metadata.json
+> git commit -m "add: <icon-name>"
+> git push
+> ```
+>
+> Without that local step, the new icon's `family` falls back to whatever `tags.json` says (or `Unassigned`) until the Excel is updated and `populate_metadata.py` is rerun.
 
 If the action's Frontify step is ever skipped or fails, run it manually:
 
