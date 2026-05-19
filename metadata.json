@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": "2.0",
-    "last_updated": "2026-03-04",
+    "last_updated": "2026-02-13",
     "next_font_codepoint": "U+E186"
   },
   "families": [
@@ -10,7 +10,6 @@
     "Disasters, hazards and crises",
     "Socioeconomic and development",
     "People",
-    "Activities strategy",
     "Product type",
     "Food and non-food items",
     "Water sanitation and hygiene",
@@ -23,7 +22,9 @@
     "Telecommunications and technology",
     "UX UI",
     "Health",
-    "Lockdown"
+    "Lockdown",
+    "Activities strategy",
+    "Unassigned"
   ],
   "icons": {
     "Abduction-kidnapping": {
@@ -412,8 +413,8 @@
     },
     "Camp-coordination-and-camp-management": {
       "name": "Camp coordination and camp management",
-      "family": "Clusters",
-      "wordmark": true,
+      "family": "Unassigned",
+      "wordmark": false,
       "wordmark_valign": 0,
       "font_codepoint": "U+E031",
       "date_added": "2026-02-13"
@@ -612,7 +613,7 @@
     },
     "Coordinated-assessment": {
       "name": "Coordinated assessment",
-      "family": "Activities strategy",
+      "family": "Unassigned",
       "wordmark": false,
       "wordmark_valign": 0,
       "font_codepoint": "U+E04A",
@@ -668,7 +669,7 @@
     },
     "Damaged-affected": {
       "name": "Damaged affected",
-      "family": "Damage",
+      "family": "Unassigned",
       "wordmark": false,
       "wordmark_valign": 0,
       "font_codepoint": "U+E051",
@@ -820,8 +821,8 @@
     },
     "Early-recovery": {
       "name": "Early recovery",
-      "family": "Clusters",
-      "wordmark": true,
+      "family": "Unassigned",
+      "wordmark": false,
       "wordmark_valign": 0,
       "font_codepoint": "U+E064",
       "date_added": "2026-02-13"
@@ -868,8 +869,8 @@
     },
     "Emergency-telecommunications": {
       "name": "Emergency telecommunications",
-      "family": "Clusters",
-      "wordmark": true,
+      "family": "Unassigned",
+      "wordmark": false,
       "wordmark_valign": 0,
       "font_codepoint": "U+E06A",
       "date_added": "2026-02-13"
@@ -892,7 +893,7 @@
     },
     "Exit-cancel": {
       "name": "Exit cancel",
-      "family": "UX UI",
+      "family": "Unassigned",
       "wordmark": false,
       "wordmark_valign": 0,
       "font_codepoint": "U+E06D",
@@ -1044,8 +1045,8 @@
     },
     "Food-security": {
       "name": "Food security",
-      "family": "Clusters",
-      "wordmark": true,
+      "family": "Unassigned",
+      "wordmark": false,
       "wordmark_valign": 0,
       "font_codepoint": "U+E080",
       "date_added": "2026-02-13"
@@ -1364,7 +1365,7 @@
     },
     "Indigenous-people": {
       "name": "Indigenous people",
-      "family": "People",
+      "family": "Unassigned",
       "wordmark": false,
       "wordmark_valign": 0,
       "font_codepoint": "U+E0A8",
@@ -1588,8 +1589,8 @@
     },
     "Logistics-and-telecommunications": {
       "name": "Logistics and telecommunications",
-      "family": "Other sectors",
-      "wordmark": true,
+      "family": "Unassigned",
+      "wordmark": false,
       "wordmark_valign": 0,
       "font_codepoint": "U+E0C4",
       "date_added": "2026-02-13"
@@ -2628,7 +2629,7 @@
     },
     "Sexual-and-reproductive-health": {
       "name": "Sexual and reproductive health",
-      "family": "Activities strategy",
+      "family": "Unassigned",
       "wordmark": false,
       "wordmark_valign": 0,
       "font_codepoint": "U+E146",
@@ -2660,8 +2661,8 @@
     },
     "Shelter-land-and-site-coordination": {
       "name": "Shelter, land and site coordination",
-      "family": "Other sectors",
-      "wordmark": true,
+      "family": "Unassigned",
+      "wordmark": false,
       "wordmark_valign": 0,
       "font_codepoint": "U+E14A",
       "date_added": "2026-02-13"
@@ -3076,7 +3077,7 @@
     },
     "Warning-error": {
       "name": "Warning error",
-      "family": "UX UI",
+      "family": "Unassigned",
       "wordmark": false,
       "wordmark_valign": 0,
       "font_codepoint": "U+E17E",
@@ -3084,9 +3085,9 @@
     },
     "Water-sanitation-and-hygiene": {
       "name": "Water sanitation and hygiene",
-      "family": "Clusters",
-      "wordmark": true,
-      "wordmark_valign": -4,
+      "family": "Unassigned",
+      "wordmark": false,
+      "wordmark_valign": 0,
       "font_codepoint": "U+E17F",
       "date_added": "2026-02-13"
     },
