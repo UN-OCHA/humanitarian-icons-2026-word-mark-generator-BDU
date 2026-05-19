@@ -5,6 +5,7 @@
 openpyxl>=3.1
 
 # PowerPoint generator
+python-pptx>=1.0
 lxml>=5.2
 Pillow>=10.3
 
