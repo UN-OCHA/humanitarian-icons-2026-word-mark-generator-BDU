@@ -255,8 +255,9 @@ function removeTag(key, index) {
   render(); // re-render to update card states
 }
 
-function exportJSON() {
-  // Build clean export: just key -> tags array
+let fileHandle = null; // remembers the file so subsequent saves are one-click
+
+async function exportJSON() {
   const output = {};
   Object.entries(tagsData)
     .sort((a, b) => a[0].localeCompare(b[0]))
@@ -268,12 +269,31 @@ function exportJSON() {
       };
     });
 
-  const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'tags.json';
-  a.click();
-  URL.revokeObjectURL(url);
+  const json = JSON.stringify(output, null, 2) + '\n';
+
+  // Use File System Access API to save directly to repo root
+  try {
+    if (!fileHandle) {
+      fileHandle = await window.showSaveFilePicker({
+        suggestedName: 'tags.json',
+        types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }]
+      });
+    }
+    const writable = await fileHandle.createWritable();
+    await writable.write(json);
+    await writable.close();
+    document.getElementById('stats').textContent += ' · Saved!';
+    setTimeout(updateStats, 2000);
+  } catch (err) {
+    if (err.name === 'AbortError') return; // user cancelled
+    // Fallback to download if File System Access API not supported
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'tags.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 }
 
 init();
