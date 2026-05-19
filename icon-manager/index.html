@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OCHA Icon Curator</title>
+    <title>OCHA Icon Manager</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -503,6 +503,98 @@
             transition: border-color 0.15s ease;
         }
 
+        /* Tag chips */
+        .tag-row {
+            align-items: flex-start;
+        }
+        .tag-list {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            min-height: 28px;
+            padding: 0.25rem 0.35rem;
+            border: 1px solid var(--cd-grey--light);
+            border-radius: 2px;
+            background: var(--cd-white);
+            transition: border-color 0.15s ease;
+        }
+        .tag-list:focus-within {
+            border-color: var(--cd-ocha-blue);
+        }
+        .tag-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.15rem 0.5rem 0.15rem 0.6rem;
+            background: var(--cd-blue-grey);
+            color: var(--cd-blue--dark);
+            border-radius: 12px;
+            font-size: 0.7625rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        .tag-chip .tag-x {
+            cursor: pointer;
+            opacity: 0.55;
+            font-weight: 700;
+            font-size: 0.95rem;
+            line-height: 1;
+            padding-bottom: 2px;
+        }
+        .tag-chip .tag-x:hover {
+            opacity: 1;
+            color: var(--cd-red);
+        }
+        .tag-input {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 0.8125rem;
+            font-family: var(--cd-font--roboto);
+            min-width: 80px;
+            flex: 1;
+            padding: 0.15rem 0.25rem;
+            color: var(--cd-grey--dark);
+        }
+        .tag-input::placeholder {
+            color: var(--cd-grey--mid);
+            opacity: 0.6;
+        }
+
+        /* Drag-drop SVG zone (Add modal) */
+        .svg-drop-zone {
+            border: 2px dashed var(--cd-grey--mid);
+            border-radius: 6px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            color: var(--cd-grey--mid);
+            font-size: 0.8125rem;
+            cursor: pointer;
+            transition: border-color 0.15s ease, background 0.15s ease;
+            background: var(--cd-grey--light);
+        }
+        .svg-drop-zone:hover,
+        .svg-drop-zone.drag-over {
+            border-color: var(--cd-ocha-blue);
+            background: var(--cd-blue-grey);
+            color: var(--cd-blue--dark);
+        }
+        .svg-drop-zone.has-file {
+            border-style: solid;
+            border-color: var(--cd-green);
+            color: var(--cd-grey--dark);
+            background: #f0f7f2;
+        }
+        .svg-drop-zone strong {
+            font-weight: 600;
+        }
+        .svg-drop-zone-hint {
+            margin-top: 0.4rem;
+            font-size: 0.7125rem;
+            opacity: 0.7;
+        }
+
         .field-number:focus {
             outline: none;
             border-color: var(--cd-ocha-blue);
@@ -888,7 +980,7 @@
     <!-- Header -->
     <div class="app-header">
         <div class="app-header-left">
-            <h1>OCHA Icon Curator</h1>
+            <h1>OCHA Icon Manager</h1>
             <div class="subtitle">Manage the humanitarian icon library metadata</div>
         </div>
         <div class="app-header-right">
@@ -970,13 +1062,22 @@
         <div class="modal-body">
             <div class="modal-preview" id="addPreview">
                 <div class="preview-svg" id="addPreviewSvg"></div>
-                <div class="preview-info">Enter an SVG filename to preview</div>
+                <div class="preview-info">Drop an SVG file below, or type a filename that's already in ../svg/</div>
             </div>
 
             <div class="modal-field">
-                <label for="addKey">SVG Filename (without .svg)</label>
+                <label>SVG File</label>
+                <div class="svg-drop-zone" id="addDropZone" onclick="document.getElementById('addSvgPicker').click()">
+                    <div id="addDropZoneLabel"><strong>Drop SVG here</strong> or click to browse</div>
+                    <div class="svg-drop-zone-hint">Filename becomes the icon key. Use kebab-case-with-capital-first (e.g. <code>My-new-icon.svg</code>)</div>
+                </div>
+                <input type="file" id="addSvgPicker" accept=".svg,image/svg+xml" style="display:none" onchange="handleAddSvgPicker(event)">
+            </div>
+
+            <div class="modal-field">
+                <label for="addKey">Icon key (auto-filled from filename)</label>
                 <input type="text" id="addKey" placeholder="e.g. My-new-icon" oninput="onAddKeyInput()">
-                <div class="field-hint">This becomes the icon key. Must match an SVG file in ../svg/</div>
+                <div class="field-hint">Must be unique; this is the SVG filename stem.</div>
                 <div class="field-error" id="addKeyError"></div>
             </div>
 
@@ -988,6 +1089,12 @@
             <div class="modal-field">
                 <label for="addFamily">Family</label>
                 <select id="addFamily"></select>
+            </div>
+
+            <div class="modal-field">
+                <label>Tags</label>
+                <div class="tag-list" id="addTagList" style="border:1px solid #ddd; min-height:36px;"></div>
+                <div class="field-hint">Type a tag and press Enter. Use commas to add several at once.</div>
             </div>
 
             <div class="modal-field">
@@ -1458,11 +1565,76 @@
         html += '</span>';
         html += '</div>';
 
+        // Tags
+        html += '<div class="field-row tag-row">';
+        html += '<span class="field-label">Tags</span>';
+        html += renderTagList(key, icon.tags || []);
+        html += '</div>';
+
         html += '</div>';  // icon-fields
         html += '</div>';  // icon-card
 
         return html;
     }
+
+    function renderTagList(key, tags) {
+        var html = '<div class="tag-list" data-tag-list-key="' + escapeHTML(key) + '">';
+        tags.forEach(function(tag) {
+            html += '<span class="tag-chip">' + escapeHTML(tag);
+            html += '<span class="tag-x" onclick="removeTag(\'' + escapeJS(key) + '\',\'' + escapeJS(tag) + '\')" title="Remove">&times;</span>';
+            html += '</span>';
+        });
+        html += '<input type="text" class="tag-input" placeholder="add tag…" '
+              + 'onkeydown="onTagKeydown(event,\'' + escapeJS(key) + '\')" '
+              + 'onblur="commitTagInput(event,\'' + escapeJS(key) + '\')">';
+        html += '</div>';
+        return html;
+    }
+
+    window.onTagKeydown = function(e, key) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            commitTagInput(e, key);
+        } else if (e.key === 'Backspace' && !e.target.value) {
+            // Remove last tag on backspace in empty input
+            var icon = metadata.icons[key];
+            if (icon && icon.tags && icon.tags.length) {
+                var last = icon.tags[icon.tags.length - 1];
+                removeTag(key, last);
+            }
+        }
+    };
+
+    window.commitTagInput = function(e, key) {
+        var raw = (e.target.value || '').trim().replace(/^,+|,+$/g, '').trim();
+        if (!raw) return;
+        var icon = metadata.icons[key];
+        if (!icon) return;
+        if (!icon.tags) icon.tags = [];
+        // Split on comma so user can paste a list
+        raw.split(',').map(function(t){return t.trim();}).filter(Boolean).forEach(function(tag) {
+            if (icon.tags.indexOf(tag) === -1) icon.tags.push(tag);
+        });
+        e.target.value = '';
+        markChanged();
+        // Replace the tag list inline
+        var wrap = document.querySelector('[data-tag-list-key="' + key + '"]');
+        if (wrap) {
+            wrap.outerHTML = renderTagList(key, icon.tags);
+            // refocus newly-rendered input
+            var newInput = document.querySelector('[data-tag-list-key="' + key + '"] .tag-input');
+            if (newInput) newInput.focus();
+        }
+    };
+
+    window.removeTag = function(key, tag) {
+        var icon = metadata.icons[key];
+        if (!icon || !icon.tags) return;
+        icon.tags = icon.tags.filter(function(t) { return t !== tag; });
+        markChanged();
+        var wrap = document.querySelector('[data-tag-list-key="' + key + '"]');
+        if (wrap) wrap.outerHTML = renderTagList(key, icon.tags);
+    };
 
     // =========================================================================
     // Icon editing
@@ -1539,6 +1711,11 @@
         });
     }
 
+    // Holds the SVG file dropped into the Add modal (for save on confirm).
+    var addModalSvgFile = null;       // File object (if dropped)
+    var addModalSvgText = null;       // string contents (for preview)
+    var addModalTags = [];            // tags collected in the modal
+
     window.openAddModal = function() {
         document.getElementById('addKey').value = '';
         document.getElementById('addName').value = '';
@@ -1548,6 +1725,15 @@
         document.getElementById('addPreviewSvg').innerHTML = '';
         document.getElementById('addCodepointDisplay').textContent = metadata.meta.next_font_codepoint || '--';
 
+        // Reset drop zone + tag state
+        addModalSvgFile = null;
+        addModalSvgText = null;
+        addModalTags = [];
+        var dz = document.getElementById('addDropZone');
+        dz.classList.remove('has-file');
+        document.getElementById('addDropZoneLabel').innerHTML = '<strong>Drop SVG here</strong> or click to browse';
+        renderAddModalTagList();
+
         populateAddFamilyDropdown();
         document.getElementById('addModal').classList.add('visible');
         setTimeout(function() { document.getElementById('addKey').focus(); }, 100);
@@ -1555,6 +1741,102 @@
 
     window.closeAddModal = function() {
         document.getElementById('addModal').classList.remove('visible');
+    };
+
+    // Drag-drop SVG handlers ----------------------------------------------
+    (function attachDropZone() {
+        var dz = document.getElementById('addDropZone');
+        if (!dz) return;
+        dz.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dz.classList.add('drag-over');
+        });
+        dz.addEventListener('dragleave', function() {
+            dz.classList.remove('drag-over');
+        });
+        dz.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dz.classList.remove('drag-over');
+            var file = e.dataTransfer.files[0];
+            if (file) ingestSvgFile(file);
+        });
+    })();
+
+    window.handleAddSvgPicker = function(e) {
+        var file = e.target.files[0];
+        if (file) ingestSvgFile(file);
+    };
+
+    function ingestSvgFile(file) {
+        if (!file.name.toLowerCase().endsWith('.svg')) {
+            showToast('Please drop a .svg file', 'error');
+            return;
+        }
+        var stem = file.name.replace(/\.svg$/i, '');
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+            addModalSvgFile = file;
+            addModalSvgText = ev.target.result;
+            // Cache the cleaned SVG so onAddKeyInput doesn't try to fetch it
+            // from the (not-yet-existing) svg/ folder.
+            svgCache[stem] = cleanSVG(addModalSvgText);
+            // Auto-fill key + name from filename if empty
+            var keyEl = document.getElementById('addKey');
+            if (!keyEl.value.trim()) {
+                keyEl.value = stem;
+                onAddKeyInput();
+            } else {
+                // Force preview refresh in case user already typed a key
+                document.getElementById('addPreviewSvg').innerHTML = svgCache[stem];
+            }
+            // Update drop zone UI
+            var dz = document.getElementById('addDropZone');
+            dz.classList.add('has-file');
+            document.getElementById('addDropZoneLabel').innerHTML =
+                '<strong>' + escapeHTML(file.name) + '</strong> ready to save';
+        };
+        reader.readAsText(file);
+    }
+
+    // Tag input inside the Add modal ---------------------------------------
+    function renderAddModalTagList() {
+        var wrap = document.getElementById('addTagList');
+        var html = '';
+        addModalTags.forEach(function(tag) {
+            html += '<span class="tag-chip">' + escapeHTML(tag);
+            html += '<span class="tag-x" onclick="removeAddModalTag(\'' + escapeJS(tag) + '\')" title="Remove">&times;</span>';
+            html += '</span>';
+        });
+        html += '<input type="text" class="tag-input" placeholder="add tag…" '
+              + 'onkeydown="onAddModalTagKeydown(event)" onblur="commitAddModalTagInput(event)">';
+        wrap.innerHTML = html;
+    }
+
+    window.onAddModalTagKeydown = function(e) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            commitAddModalTagInput(e);
+        } else if (e.key === 'Backspace' && !e.target.value && addModalTags.length) {
+            removeAddModalTag(addModalTags[addModalTags.length - 1]);
+        }
+    };
+
+    window.commitAddModalTagInput = function(e) {
+        var raw = (e.target.value || '').trim().replace(/^,+|,+$/g, '').trim();
+        if (!raw) return;
+        raw.split(',').map(function(t){return t.trim();}).filter(Boolean).forEach(function(tag) {
+            if (addModalTags.indexOf(tag) === -1) addModalTags.push(tag);
+        });
+        e.target.value = '';
+        renderAddModalTagList();
+        // refocus
+        var newInput = document.querySelector('#addTagList .tag-input');
+        if (newInput) newInput.focus();
+    };
+
+    window.removeAddModalTag = function(tag) {
+        addModalTags = addModalTags.filter(function(t) { return t !== tag; });
+        renderAddModalTagList();
     };
 
     window.onAddKeyInput = function() {
@@ -1650,15 +1932,21 @@
         cpNum++;
         metadata.meta.next_font_codepoint = 'U+' + cpNum.toString(16).toUpperCase().padStart(4, '0');
 
-        // Add icon
+        // Add icon (with tags collected from the modal)
         metadata.icons[key] = {
             name: name,
             family: family,
+            tags: addModalTags.slice(),
             wordmark: wordmark,
             wordmark_valign: valign,
             font_codepoint: codepoint,
             date_added: dateStr
         };
+
+        // If the user dropped an SVG, prompt them to save it into svg/.
+        if (addModalSvgFile && addModalSvgText) {
+            saveDroppedSvg(key, addModalSvgText);
+        }
 
         closeAddModal();
         markChanged();
@@ -1676,6 +1964,39 @@
             }
         }, 100);
     };
+
+    // Save a dropped SVG to disk. Uses the File System Access API if available,
+    // otherwise falls back to a download.
+    function saveDroppedSvg(key, svgText) {
+        var filename = key + '.svg';
+        if ('showSaveFilePicker' in window) {
+            window.showSaveFilePicker({
+                suggestedName: filename,
+                types: [{ description: 'SVG image', accept: { 'image/svg+xml': ['.svg'] } }]
+            }).then(function(handle) {
+                return handle.createWritable().then(function(writable) {
+                    return writable.write(svgText).then(function() { return writable.close(); });
+                });
+            }).then(function() {
+                showToast('Saved ' + filename + ' — drop it into the repo\'s svg/ folder', 'success');
+            }).catch(function(err) {
+                if (err && err.name === 'AbortError') return;
+                showToast('Could not save ' + filename + ': ' + err.message, 'error');
+            });
+            return;
+        }
+        // Fallback: trigger a download
+        var blob = new Blob([svgText], { type: 'image/svg+xml' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(url); }, 100);
+        showToast('Downloaded ' + filename + ' — move it into the repo\'s svg/ folder', 'success');
+    }
 
     // =========================================================================
     // Delete icon

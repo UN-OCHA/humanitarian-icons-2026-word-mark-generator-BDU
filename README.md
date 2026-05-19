@@ -631,13 +631,13 @@ A browser-based tool that allows OCHA staff to create branded wordmarks using Hu
 | `word-mark-generator/google-apps-script.js` | Backend code deployed as a Google Apps Script web app |
 | `word-mark-generator/APPROVAL_SETUP.md` | Setup and operations documentation |
 
-### Icon Curator
+### Icon Manager
 
-A browser-based tool for browsing, reviewing, and managing icon metadata.
+A browser-based tool for adding new icons, editing tags, changing families, and managing wordmark approval. Open `icon-manager/index.html` in Chrome or Edge — drag-drop SVGs, edit tags as chips, save back to `metadata.json`.
 
 | File | Purpose |
 |---|---|
-| `curator/index.html` | The curator interface |
+| `icon-manager/index.html` | The icon manager interface |
 
 ### Build Scripts
 
@@ -645,51 +645,61 @@ Python utilities for generating the distributable exports. Requires Python 3.9+ 
 
 | Script | What it does |
 |---|---|
-| `scripts/populate_metadata.py` | Scans `svg/` and builds `metadata.json` |
+| `scripts/populate_metadata.py` | Refreshes `metadata.json` from `svg/`: adds stubs for new icons, normalises display names, reassigns font codepoints alphabetically |
 | `scripts/generate-excel.py` | Generates the Excel export |
 | `scripts/generate-pptx.py` | Generates the PowerPoint export |
 | `scripts/generate-font.py` | Generates the icon font |
 | `scripts/generate-grid.py` | Generates the complete SVG grid |
 | `scripts/generate-wordmark.py` | Batch generates wordmarks from metadata |
-| `scripts/fix_metadata.py` | Utility for metadata corrections |
-| `scripts/sync_to_frontify.py` | Syncs new SVGs + tags.json updates to the OCHA Frontify icon library |
+| `scripts/sync_to_frontify.py` | Syncs new SVGs + tag changes from `metadata.json` to the OCHA Frontify icon library |
 
 ---
 
 ## Adding a new icon
 
-The full pipeline runs automatically on push via [`.github/workflows/sync-and-build.yml`](.github/workflows/sync-and-build.yml). The contributor's job is just steps 1 and 2:
+The full pipeline runs automatically on push via [`.github/workflows/sync-and-build.yml`](.github/workflows/sync-and-build.yml). The contributor's job is just to drop the SVG and update `metadata.json` — the icon manager handles the second part visually.
 
-1. **Drop the SVG** in `svg/` using the kebab-case-with-capital-first naming convention (e.g. `Drone.svg`, `Air-quality.svg`). One colour: OCHA blue `#009edb`.
-2. **Add an entry to `tags.json`** with the icon's `name`, `family`, and a small list of search `tags`:
+### Recommended: use the icon manager
+
+1. Open `icon-manager/index.html` in **Chrome** or **Edge**.
+2. Click **+ Add Icon**, drag your SVG into the drop zone, pick a family, type a few tags.
+3. Click **Add Icon** → save the SVG into the repo's `svg/` folder when prompted.
+4. Click **Export metadata.json** → save it over the repo's `metadata.json`.
+5. Commit and push:
+   ```bash
+   git add svg/ metadata.json
+   git commit -m "add: <icon-name>"
+   git push
+   ```
+
+### Manual alternative
+
+If you'd rather edit JSON directly:
+
+1. Drop the SVG in `svg/` using kebab-case-with-capital-first (e.g. `Drone.svg`). Single colour: OCHA blue `#009edb`.
+2. Add an entry to `metadata.json["icons"]`:
    ```json
    "Drone": {
      "name": "Drone",
-     "family": "Logistics and transport",
-     "tags": ["uav", "aerial vehicle", "quadcopter"]
+     "family": "Logistics",
+     "tags": ["uav", "aerial vehicle", "quadcopter"],
+     "wordmark": false,
+     "wordmark_valign": 0,
+     "font_codepoint": "",
+     "date_added": "2026-05-19"
    }
    ```
-3. **Commit and push to `main`.** That's it.
+   (`font_codepoint` is reassigned by CI on the next push — leave blank or use any value.)
+3. Commit and push.
 
-The GitHub Action then:
+### What CI does automatically
 
-- Normalises `metadata.json` via `fix_metadata.py` (key renames, font codepoints, display-name casing)
-- Regenerates the Excel, PowerPoint, font, and grid outputs
-- Uploads the new SVG to the OCHA Frontify icon library and applies its tags
-- Commits the refreshed `metadata.json` and `output/` files back to `main`
+- Runs `populate_metadata.py` to refresh `metadata.json` (adds stubs for any new icons, normalises display names, reassigns font codepoints alphabetically).
+- Regenerates `output/Humanitarian_icons.xlsx`, `.csv`, `.pptx`, the icon font, and the complete SVG grid.
+- Uploads any new SVGs to the OCHA Frontify icon library and applies their tags.
+- Commits the refreshed `metadata.json` and `output/` files back to `main`.
 
-> **Heads-up for the BDU maintainer:** `populate_metadata.py` rebuilds `metadata.json` from the **master Excel file** that lives in OCHA's internal Dropbox (not in the repo). It is skipped automatically on CI. If a new icon needs a proper Excel-sourced family/font code, run it locally **before pushing**:
->
-> ```bash
-> python scripts/populate_metadata.py   # locally — reads Excel from your Dropbox
-> git add svg/ tags.json metadata.json
-> git commit -m "add: <icon-name>"
-> git push
-> ```
->
-> Without that local step, the new icon's `family` falls back to whatever `tags.json` says (or `Unassigned`) until the Excel is updated and `populate_metadata.py` is rerun.
-
-If the action's Frontify step is ever skipped or fails, run it manually:
+If the Frontify step is ever skipped or fails, run it manually:
 
 ```bash
 pip install -r requirements.txt

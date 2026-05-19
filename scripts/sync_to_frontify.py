@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Sync the local `svg/` folder + `tags.json` to OCHA's Frontify icon library.
+Sync the local `svg/` folder + `metadata.json` to OCHA's Frontify icon library.
 
 What it does:
   1. Lists every `svg/*.svg` filename in the repo.
@@ -8,11 +8,11 @@ What it does:
      and their tags.
   3. Diffs the two.
   4. For each icon in the repo but NOT in Frontify: uploads the SVG and applies
-     the tags from `tags.json` (if a matching entry exists there).
+     the tags from the matching `metadata.json["icons"][key]` entry.
   5. For each icon in Frontify but NOT in the repo: prints a warning. NEVER
      deletes anything — manual cleanup only.
-  6. For each icon in both: checks if tags.json has tags missing from Frontify
-     and adds them (additive only — existing tags are never removed).
+  6. For each icon in both: checks if metadata.json has tags missing from
+     Frontify and adds them (additive only — existing tags are never removed).
   7. Prints a summary and exits 0 on success, 1 if any individual operation
      failed (so CI can decide whether to fail the job).
 
@@ -45,7 +45,7 @@ import httpx
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SVG_DIR = REPO_ROOT / "svg"
-TAGS_JSON = REPO_ROOT / "tags.json"
+METADATA_JSON = REPO_ROOT / "metadata.json"
 
 FRONTIFY_DOMAIN = os.environ.get("FRONTIFY_DOMAIN", "brand.unocha.org")
 FRONTIFY_LIBRARY_ID = int(os.environ.get("FRONTIFY_LIBRARY_ID", "251023"))
@@ -191,12 +191,13 @@ def main() -> int:
 
     if not SVG_DIR.is_dir():
         sys.exit(f"SVG folder not found at {SVG_DIR}. Run from the repo root.")
-    if not TAGS_JSON.is_file():
-        sys.exit(f"tags.json not found at {TAGS_JSON}.")
+    if not METADATA_JSON.is_file():
+        sys.exit(f"metadata.json not found at {METADATA_JSON}.")
 
-    # Load tags.json (key = filename stem; value has .name, .family, .tags)
-    tagsjson = json.loads(TAGS_JSON.read_text())
-    tagsjson_norm: dict[str, str] = {_norm(k): k for k in tagsjson}
+    # Load metadata.json icons (key = filename stem; value has .name, .family, .tags, …)
+    metadata = json.loads(METADATA_JSON.read_text())
+    md_icons: dict[str, dict] = metadata.get("icons", {})
+    md_norm: dict[str, str] = {_norm(k): k for k in md_icons}
 
     # Local icons (filename stem; we strip the .svg)
     local_files = sorted(p for p in SVG_DIR.glob("*.svg") if p.is_file())
@@ -213,15 +214,15 @@ def main() -> int:
         new_icons = [(n, local_norm[n]) for n in sorted(local_norm) if n not in remote_norm]
         # 2. Orphans: in Frontify, not in repo
         orphans = [remote_norm[n] for n in sorted(remote_norm) if n not in local_norm]
-        # 3. Tag updates: in both, tags.json has values missing from Frontify
+        # 3. Tag updates: in both, metadata.json has values missing from Frontify
         tag_adds: list[tuple[dict, list[str]]] = []
         for n in sorted(local_norm):
             if n not in remote_norm:
                 continue
-            tj_key = tagsjson_norm.get(n)
-            if not tj_key:
+            md_key = md_norm.get(n)
+            if not md_key:
                 continue
-            desired = [t for t in tagsjson[tj_key].get("tags", []) if t and t.strip()]
+            desired = [t for t in md_icons[md_key].get("tags", []) if t and t.strip()]
             existing = set(remote_norm[n]["tags"])
             to_add = [t for t in desired if t.strip().lower() not in existing]
             if to_add:
@@ -252,18 +253,18 @@ def main() -> int:
 
         # 1. Upload new icons + tag them
         for n, path in new_icons:
-            tj_key = tagsjson_norm.get(n)
-            title = tagsjson[tj_key]["name"] if tj_key else path.stem
+            md_key = md_norm.get(n)
+            title = md_icons[md_key]["name"] if md_key else path.stem
             try:
                 opaque, asset_id = upload_svg(client, path, title)
                 print(f"  uploaded: {title}  (asset_id={asset_id})")
-                if tj_key:
-                    tags = [t for t in tagsjson[tj_key].get("tags", []) if t and t.strip()]
+                if md_key:
+                    tags = [t for t in md_icons[md_key].get("tags", []) if t and t.strip()]
                     if tags:
                         add_tags(client, opaque, tags)
                         print(f"      tagged: {tags}")
                 else:
-                    print(f"      (no tags.json entry — uploaded with no tags)")
+                    print(f"      (no metadata.json entry — uploaded with no tags)")
             except Exception as e:
                 failures.append(f"{path.name}: {e}")
                 print(f"  FAIL upload: {path.name} → {e}")
