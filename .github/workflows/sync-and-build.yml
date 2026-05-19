@@ -1,0 +1,97 @@
+name: Sync icons and build outputs
+
+# Runs whenever someone pushes a change that touches the icon library or its
+# inputs. Refreshes derived outputs (metadata, Excel, PowerPoint, font, grid)
+# and syncs new icons + tags to the Frontify icon library.
+#
+# Trigger paths intentionally exclude `output/**` so the workflow doesn't loop
+# on its own commits (which only touch output/). It also excludes itself.
+#
+# Required repo secret:
+#   FRONTIFY_TOKEN — personal access token for brand.unocha.org with the
+#   brand + asset scopes (add at: Settings → Secrets and variables → Actions).
+#
+# Optional repo variables (defaults are fine for OCHA):
+#   FRONTIFY_DOMAIN     (default brand.unocha.org)
+#   FRONTIFY_LIBRARY_ID (default 251023)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "svg/**"
+      - "tags.json"
+      - "metadata.json"
+      - "scripts/**"
+      - "requirements.txt"
+      - ".github/workflows/sync-and-build.yml"
+  workflow_dispatch: # allow manual runs from the Actions tab
+
+permissions:
+  contents: write # we commit refreshed outputs back to main
+
+concurrency:
+  group: sync-and-build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sync-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Rebuild metadata
+        working-directory: scripts
+        run: |
+          python populate_metadata.py
+          python fix_metadata.py
+
+      - name: Generate derived outputs (Excel, PowerPoint, font, grid)
+        working-directory: scripts
+        run: |
+          python generate-excel.py
+          python generate-pptx.py
+          python generate-font.py
+          python generate-grid.py
+
+      - name: Sync to Frontify (upload new icons + apply tags)
+        env:
+          FRONTIFY_TOKEN: ${{ secrets.FRONTIFY_TOKEN }}
+          FRONTIFY_DOMAIN: ${{ vars.FRONTIFY_DOMAIN || 'brand.unocha.org' }}
+          FRONTIFY_LIBRARY_ID: ${{ vars.FRONTIFY_LIBRARY_ID || '251023' }}
+        run: |
+          if [ -z "$FRONTIFY_TOKEN" ]; then
+            echo "::warning::FRONTIFY_TOKEN not set — skipping Frontify sync. Set the secret at Settings → Secrets and variables → Actions."
+            exit 0
+          fi
+          python scripts/sync_to_frontify.py
+
+      - name: Commit refreshed outputs
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add metadata.json output/ || true
+          if git diff --staged --quiet; then
+            echo "No output changes to commit."
+            exit 0
+          fi
+          # Note: GITHUB_TOKEN-driven pushes don't re-trigger workflows (per
+          # GitHub's design), so no extra loop guard is needed.
+          git commit -m "chore: refresh metadata + generated outputs [skip ci]"
+          git push

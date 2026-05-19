@@ -1,0 +1,16 @@
+# Python dependencies for all scripts in this repo.
+# Pinned to safe minimums; CI installs the latest compatible versions.
+
+# Excel + metadata helpers
+openpyxl>=3.1
+
+# PowerPoint generator
+lxml>=5.2
+Pillow>=10.3
+
+# Icon font generator (SVG-in-OT-Font support + WOFF2 compression)
+fontTools>=4.55
+brotli>=1.1
+
+# Frontify sync script
+httpx>=0.27
