@@ -1,6 +1,6 @@
 # OCHA Humanitarian Icons 2026
 
-The official set of **388 humanitarian icons** used across OCHA products, publications, and digital platforms. All icons are single-color SVGs in OCHA blue (`#009edb`), designed to work at any size from 16px to print resolution.
+The official set of **389 humanitarian icons** used across OCHA products, publications, and digital platforms. All icons are single-color SVGs in OCHA blue (`#009edb`), designed to work at any size from 16px to print resolution.
 
 Maintained by the **OCHA Brand and Design Unit (BDU)**.
 
@@ -652,6 +652,50 @@ Python utilities for generating the distributable exports. Requires Python 3.9+ 
 | `scripts/generate-grid.py` | Generates the complete SVG grid |
 | `scripts/generate-wordmark.py` | Batch generates wordmarks from metadata |
 | `scripts/fix_metadata.py` | Utility for metadata corrections |
+| `scripts/sync_to_frontify.py` | Syncs new SVGs + tags.json updates to the OCHA Frontify icon library |
+
+---
+
+## Adding a new icon
+
+The full pipeline runs automatically on push via [`.github/workflows/sync-and-build.yml`](.github/workflows/sync-and-build.yml). The contributor's job is just steps 1 and 2:
+
+1. **Drop the SVG** in `svg/` using the kebab-case-with-capital-first naming convention (e.g. `Drone.svg`, `Air-quality.svg`). One colour: OCHA blue `#009edb`.
+2. **Add an entry to `tags.json`** with the icon's `name`, `family`, and a small list of search `tags`:
+   ```json
+   "Drone": {
+     "name": "Drone",
+     "family": "Logistics and transport",
+     "tags": ["uav", "aerial vehicle", "quadcopter"]
+   }
+   ```
+3. **Commit and push to `main`.** That's it.
+
+The GitHub Action then:
+
+- Rebuilds `metadata.json` (`populate_metadata.py` + `fix_metadata.py`)
+- Regenerates the Excel, PowerPoint, font, and grid outputs
+- Uploads the new SVG to the OCHA Frontify icon library and applies its tags
+- Commits the refreshed `metadata.json` and `output/` files back to `main`
+
+If the action's Frontify step is ever skipped or fails, run it manually:
+
+```bash
+pip install -r requirements.txt
+FRONTIFY_TOKEN="<your-token>" python scripts/sync_to_frontify.py --dry-run   # preview
+FRONTIFY_TOKEN="<your-token>" python scripts/sync_to_frontify.py             # apply
+```
+
+The script is **additive only** — it never removes tags or deletes icons. Orphans (icons in Frontify but missing from `svg/`) are reported as warnings for manual investigation.
+
+### Setting up the Frontify automation (one-time)
+
+For the GitHub Action's Frontify sync step to work, the repo needs one secret:
+
+1. Go to **Settings → Secrets and variables → Actions** in this repo.
+2. Add a new repository secret named `FRONTIFY_TOKEN` containing a personal access token from `brand.unocha.org` with the brand + asset scopes.
+
+Optional repo variables (defaults are correct for OCHA): `FRONTIFY_DOMAIN` (default `brand.unocha.org`), `FRONTIFY_LIBRARY_ID` (default `251023`).
 
 ---
 
